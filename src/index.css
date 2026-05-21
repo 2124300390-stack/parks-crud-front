@@ -1,0 +1,5 @@
+/* TAILWIND CSS v4 - DIRECTIVA PRINCIPAL DE ARRANQUE
+  Esta única línea procesa de forma interna todas las utilidades, componentes y directivas base de Tailwind CSS.
+  Reemplaza los bloques tradicionales @tailwind y evita conflictos de exportación en entornos PostCSS/Vite.
+*/
+@import "tailwindcss";

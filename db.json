@@ -1,0 +1,33 @@
+{
+  "parks": [
+    {
+      "name": "Parque Nacional Yellowstone",
+      "location": "Wyoming, EE.UU.",
+      "description": "Famoso por sus fenómenos geotérmicos y su fauna salvaje.",
+      "image": "imagen1.jpg",
+      "id": "1"
+    },
+    {
+      "name": "Parque Nacional Kruger",
+      "location": "Sudáfrica",
+      "description": "Una de las reservas de caza más grandes de África.",
+      "image": "imagen5.jpg",
+      "id": "2"
+    },
+    {
+      "name": "colomos",
+      "location": "GDL",
+      "description": "sadsadasdas",
+      "image": "imagen2.jpg",
+      "id": "GQKAY6YJaxM"
+    },
+    {
+      "name": "metropolitano",
+      "location": "GDL",
+      "description": "hermoso parque cercas de galerías",
+      "image": "imagen3.jpg",
+      "id": "-8dvubWS1xA"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
