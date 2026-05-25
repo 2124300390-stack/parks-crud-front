@@ -1,138 +1,248 @@
 import { useState, useEffect } from 'react';
 
-const ParkForm = ({ onSubmit, initialData, onCancel }) => {
-  // Inicialización de estados sincronizados con las reglas de validación de Laravel
-  const [parkName, setParkName] = useState('');
-  const [parkAbbreviation, setParkAbbreviation] = useState('');
-  const [parkImgUrl, setParkImgUrl] = useState('');
-  const [parkAddress, setParkAddress] = useState('');
-  const [parkCity, setParkCity] = useState('Zapopan'); 
-  const [parkState, setParkState] = useState('Jalisco');
-  const [parkZipCode, setParkZipCode] = useState('');
-  const [parkLatitude, setParkLatitude] = useState('');
-  const [parkLongitude, setParkLongitude] = useState('');
+/**
+ * Componente ParkForm.
+ * Gestiona el estado local del formulario de captura para crear o actualizar un parque.
+ * Realiza la normalización y casteo de tipos de datos, maneja la carga de archivos binarios 
+ * y sincroniza los campos cuando se edita un parque preexistente a través de props.
+ */
+function ParkForm({ onSubmit, initialData, onCancel }) {
 
-  // Efecto para alternar entre modo "Crear" y "Modificar"
+  // Estado estructurado para los campos de texto y selección del formulario
+  const [formData, setFormData] = useState({
+    park_name: '',
+    park_abbreviation: '',
+    park_address: '',
+    park_city: 'Guadalajara', // Valor por defecto estipulado
+    park_state: 'Jalisco',     // Valor por defecto estipulado
+    park_latitude: '',
+    park_longitude: '',
+    park_zip_code: ''
+  });
+
+  // Estado especial para almacenar el archivo físico binario seleccionado desde el Explorador de Archivos
+  const [selectedFile, setSelectedFile] = useState(null);
+  
+  // Estado para aislar y mostrar el nombre del archivo de imagen actual (útil en modo edición)
+  const [currentImageName, setCurrentImageName] = useState('');
+
+  // ==========================================
+  // DISPARADOR DE SINCRONIZACIÓN (EDICIÓN/CREACIÓN)
+  // ==========================================
   useEffect(() => {
     if (initialData) {
-      setParkName(initialData.park_name || '');
-      setParkAbbreviation(initialData.park_abbreviation || '');
-      setParkImgUrl(initialData.park_img_url || '');
-      setParkAddress(initialData.park_address || '');
-      setParkCity(initialData.park_city || 'Zapopan');
-      setParkState(initialData.park_state || 'Jalisco');
-      setParkZipCode(initialData.park_zip_code || '');
-      setParkLatitude(initialData.park_latitude || '');
-      setParkLongitude(initialData.park_longitude || '');
+      // 📝 MODO EDICIÓN: Extracción y limpieza del nombre del archivo original
+      let fileName = '';
+      if (typeof initialData.park_img_uri === 'string' && initialData.park_img_uri) {
+        fileName = initialData.park_img_uri.split('/').pop().trim();
+      } else if (typeof initialData.park_img_url === 'string' && initialData.park_img_url) {
+        fileName = initialData.park_img_url.split('/').pop().trim();
+      }
+
+      setCurrentImageName(fileName);
+
+      // Mutación controlada del estado local con la información del parque a editar
+      setFormData({
+        park_name: initialData.park_name || '',
+        park_abbreviation: initialData.park_abbreviation || '',
+        park_address: initialData.park_address || '',
+        park_city: initialData.park_city || 'Guadalajara',
+        park_state: initialData.park_state || 'Jalisco',
+        park_latitude: initialData.park_latitude || '',
+        park_longitude: initialData.park_longitude || '',
+        // Compatibilidad por si el backend mapea el código como zip_code o postal_code
+        park_zip_code: initialData.park_zip_code || initialData.park_postal_code || ''
+      });
+      setSelectedFile(null); // Resetea la selección temporal de archivos nuevos
     } else {
-      setParkName('');
-      setParkAbbreviation('');
-      setParkImgUrl('');
-      setParkAddress('');
-      setParkCity('Zapopan');
-      setParkState('Jalisco');
-      setParkZipCode('');
-      setParkLatitude('');
-      setParkLongitude('');
+      // ✨ MODO CREACIÓN: Limpieza absoluta del estado para un formulario vacío
+      setCurrentImageName('');
+      setSelectedFile(null);
+      setFormData({
+        park_name: '',
+        park_abbreviation: '',
+        park_address: '',
+        park_city: 'Guadalajara',
+        park_state: 'Jalisco',
+        park_latitude: '',
+        park_longitude: '',
+        park_zip_code: ''
+      });
     }
   }, [initialData]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Validación de seguridad local antes de disparar hacia la red
-    if (!parkName.trim() || !parkAbbreviation.trim() || !parkImgUrl.trim() || !parkAddress.trim() || !parkZipCode || !parkLatitude || !parkLongitude) {
-      alert('⚠️ Todos los campos marcados con asterisco (*) son obligatorios.');
-      return;
-    }
+  // ==========================================
+  // MANEJADORES DE ENTRADAS (HANDLERS)
+  // ==========================================
 
-    // Convertimos los tipos de datos de forma estricta (integer y numeric) para Laravel
-    onSubmit({
-      park_name: parkName,
-      park_abbreviation: parkAbbreviation,
-      park_img_url: parkImgUrl,
-      park_address: parkAddress,
-      park_city: parkCity,
-      park_state: parkState,
-      park_zip_code: parseInt(parkZipCode, 10),
-      park_latitude: parseFloat(parkLatitude),
-      park_longitude: parseFloat(parkLongitude)
-    });
+  /**
+   * Actualiza dinámicamente las propiedades de texto basadas en el atributo 'name' del input.
+   */
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const inputClasses = "w-full mt-1.5 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all placeholder:text-slate-400 shadow-sm";
+  /**
+   * Captura el archivo binario nativo seleccionado por el usuario.
+   */
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  /**
+   * Centraliza, parsea y eleva el payload de datos purificados hacia el componente superior.
+   */
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Construcción del objeto de transferencia aplicando casteos estrictos para evitar Errores 500 en la BD
+    const datosListos = {
+      park_name: formData.park_name,
+      park_abbreviation: formData.park_abbreviation,
+      park_address: formData.park_address,
+      park_city: formData.park_city,
+      park_state: formData.park_state,
+      park_latitude: Number(formData.park_latitude) || 0.0,
+      park_longitude: Number(formData.park_longitude) || 0.0,
+      park_zip_code: parseInt(formData.park_zip_code, 10) || 0,
+      
+      // Condicional de Imagen: Si hay binario nuevo se adjunta, de lo contrario se envía la cadena previa
+      park_img_file: selectedFile ? selectedFile : currentImageName 
+    };
+
+    console.log('Form Payload:', datosListos);
+    onSubmit(datosListos); // Eleva los datos procesados al manejador del Home.jsx
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 text-left">
-      
-      {/* Fila 1: Nombre y Abreviación */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <form onSubmit={handleSubmit} className="space-y-6 text-left">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        {/* INPUT: NOMBRE */}
+        <div>
+          <label className="block text-xs font-bold uppercase text-slate-500 mb-2">Nombre del Parque *</label>
+          <input
+            type="text" required name="park_name"
+            value={formData.park_name} onChange={handleInputChange}
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-emerald-500"
+          />
+        </div>
+
+        {/* INPUT: ABREVIACIÓN */}
+        <div>
+          <label className="block text-xs font-bold uppercase text-slate-500 mb-2">Abreviación *</label>
+          <input
+            type="text" required name="park_abbreviation"
+            value={formData.park_abbreviation} onChange={handleInputChange}
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-emerald-500"
+          />
+        </div>
+
+        {/* INPUT: DIRECCIÓN FÍSICA */}
         <div className="md:col-span-2">
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Nombre del Parque *</label>
-          <input type="text" value={parkName} onChange={(e) => setParkName(e.target.value)} placeholder="Ej. Bosque de los Colomos" className={inputClasses} required maxLength={100} />
+          <label className="block text-xs font-bold uppercase text-slate-500 mb-2">Dirección Física *</label>
+          <input
+            type="text" required name="park_address"
+            value={formData.park_address} onChange={handleInputChange}
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-emerald-500"
+          />
         </div>
-        <div>
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Abreviación *</label>
-          <input type="text" value={parkAbbreviation} onChange={(e) => setParkAbbreviation(e.target.value)} placeholder="Ej. BCOL" className={inputClasses} required maxLength={10} />
-        </div>
-      </div>
 
-      {/* Fila 2: Dirección y Nombre de Imagen en Storage */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* SELECT: MUNICIPIO / CIUDAD */}
         <div>
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Dirección Física *</label>
-          <input type="text" value={parkAddress} onChange={(e) => setParkAddress(e.target.value)} placeholder="Calle, número y colonia..." className={inputClasses} required maxLength={150} />
-        </div>
-        <div>
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Nombre del archivo de Imagen *</label>
-          <input type="text" value={parkImgUrl} onChange={(e) => setParkImgUrl(e.target.value)} placeholder="Ej: PAA-20250103-142552.jpg" className={inputClasses} required />
-        </div>
-      </div>
-
-      {/* Fila 3: Municipios Restringidos, Estado y CP */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div>
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Municipio / Ciudad *</label>
-          <select value={parkCity} onChange={(e) => setParkCity(e.target.value)} className={inputClasses}>
-            <option value="Zapopan">Zapopan</option>
+          <label className="block text-xs font-bold uppercase text-slate-500 mb-2">Municipio / Ciudad *</label>
+          <select
+            name="park_city" value={formData.park_city} onChange={handleInputChange}
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-emerald-500"
+          >
             <option value="Guadalajara">Guadalajara</option>
-            <option value="San Pedro Tlaquepaque">San Pedro Tlaquepaque</option>
+            <option value="Zapopan">Zapopan</option>
+            <option value="Tlaquepaque">Tlaquepaque</option>
             <option value="Tonalá">Tonalá</option>
+            <option value="Tlajomulco">Tlajomulco</option>
           </select>
         </div>
+
+        {/* INPUT: ESTADO */}
         <div>
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Estado *</label>
-          <input type="text" value={parkState} onChange={(e) => setParkState(e.target.value)} placeholder="Jalisco" className={inputClasses} required maxLength={100} />
+          <label className="block text-xs font-bold uppercase text-slate-500 mb-2">Estado *</label>
+          <input
+            type="text" required name="park_state"
+            value={formData.park_state} onChange={handleInputChange}
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-emerald-500"
+          />
         </div>
+
+        {/* INPUT: CÓDIGO POSTAL */}
         <div>
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Código Postal *</label>
-          <input type="number" value={parkZipCode} onChange={(e) => setParkZipCode(e.target.value)} placeholder="44660" className={inputClasses} required />
+          <label className="block text-xs font-bold uppercase text-slate-500 mb-2">Código Postal *</label>
+          <input
+            type="number" required name="park_zip_code"
+            value={formData.park_zip_code} onChange={handleInputChange}
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-emerald-500"
+          />
         </div>
+
+        {/* INPUT FILE: COMPONENTE MULTIMEDIA */}
+        <div>
+          <label className="block text-xs font-bold uppercase text-slate-500 mb-2">Imagen del Parque *</label>
+          <input
+            type="file"
+            accept="image/png, image/jpeg, image/jpg"
+            onChange={handleFileChange}
+            className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-xs text-slate-600 file:mr-4 file:py-1.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+          />
+          {/* Muestra un sutil texto informativo sobre el recurso previo si está en edición */}
+          {initialData && currentImageName && !selectedFile && (
+            <p className="text-[10px] text-slate-400 mt-1 pl-1">
+              Imagen actual: <span className="font-mono text-slate-600">{currentImageName}</span>
+            </p>
+          )}
+        </div>
+
+        {/* INPUT: LATITUD */}
+        <div>
+          <label className="block text-xs font-bold uppercase text-slate-500 mb-2">Latitud Decimal *</label>
+          <input
+            type="text" required name="park_latitude"
+            value={formData.park_latitude} onChange={handleInputChange}
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-emerald-500"
+          />
+        </div>
+
+        {/* INPUT: LONGITUD */}
+        <div>
+          <label className="block text-xs font-bold uppercase text-slate-500 mb-2">Longitud Decimal *</label>
+          <input
+            type="text" required name="park_longitude"
+            value={formData.park_longitude} onChange={handleInputChange}
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-emerald-500"
+          />
+        </div>
+
       </div>
 
-      {/* Fila 4: Coordenadas de Geolocalización Decimal */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
-        <div>
-          <label className="text-xs font-bold text-slate-600 uppercase tracking-wide">Latitud Decimal *</label>
-          <input type="number" step="any" value={parkLatitude} onChange={(e) => setParkLatitude(e.target.value)} placeholder="Ej. 20.7061" className={inputClasses} required />
-        </div>
-        <div>
-          <label className="text-xs font-bold text-slate-600 uppercase tracking-wide">Longitud Decimal *</label>
-          <input type="number" step="any" value={parkLongitude} onChange={(e) => setParkLongitude(e.target.value)} placeholder="Ej. -103.3914" className={inputClasses} required />
-        </div>
-      </div>
-
-      {/* Botones de Acción */}
-      <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
-        <button type="button" onClick={onCancel} className="px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 transition-colors">
+      {/* SECCIÓN DE BOTONES DE ACCIÓN */}
+      <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+        <button
+          type="button" onClick={onCancel}
+          className="px-5 py-2.5 rounded-xl text-slate-500 text-sm font-bold transition-colors hover:text-slate-700"
+        >
           Descartar
         </button>
-        <button type="submit" className="px-5 py-2 bg-emerald-600 text-white text-sm font-bold rounded-lg hover:bg-emerald-700 transition-colors shadow-sm">
+
+        <button
+          type="submit"
+          className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold shadow-md transition-all"
+        >
           {initialData ? '💾 Guardar Cambios' : '🚀 Registrar Parque'}
         </button>
       </div>
     </form>
   );
-};
+}
 
 export default ParkForm;
