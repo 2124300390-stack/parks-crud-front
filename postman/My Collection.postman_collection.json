@@ -1,0 +1,254 @@
+{
+  "info": {
+    "_postman_id": "9cc2d08b-579e-48f7-9101-44991e37f756",
+    "name": "My Collection",
+    "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51911978",
+    "_collection_link": "https://go.postman.co/collection/51911978-9cc2d08b-579e-48f7-9101-44991e37f756?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Get data",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        },
+        "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Ambu-Public-Key",
+            "value": "AMBU-T-0T7iJxr6aTRZRUx0-53547551-QtNMPA",
+            "type": "text"
+          },
+          {
+            "key": "Ambu-Private-Key",
+            "value": "AMBU-r1C45SY7zY830dpgOnEK08Q8ZaHdC5iDL4rdy9eNN5TTVimC-sPTZVAnsMgqcmxXM-T",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "park_name",
+              "value": "parque nuevo",
+              "type": "text",
+              "uuid": "b8037c5a-9074-4e80-9df3-7d8e2f8825dd"
+            },
+            {
+              "key": "park_abbreviation",
+              "value": "PN",
+              "type": "text",
+              "uuid": "2c85c844-8576-48a4-8d44-53e62bc81ee1"
+            },
+            {
+              "key": "park_address",
+              "value": "calle123",
+              "type": "text",
+              "uuid": "1ff8775e-5983-4b61-9998-e2f1ca7ec9dc"
+            },
+            {
+              "key": "park_city",
+              "value": "Guadalajara",
+              "type": "text",
+              "uuid": "6b1cf4af-473c-43e0-8eac-f8bac93a76e1"
+            },
+            {
+              "key": "park_img_file",
+              "type": "file",
+              "uuid": "7b54a25c-3928-48dc-814f-c1f78adc9fa6",
+              "src": "/C:/Users/aleja/OneDrive/Imágenes/tigre-blanco_3840x2160_xtrafondos.com.jpg"
+            },
+            {
+              "key": "park_state",
+              "value": "Jalisco",
+              "type": "text",
+              "uuid": "395133ba-e467-4882-8fd7-24b1d95a5da9"
+            },
+            {
+              "key": "park_zip_code",
+              "value": "44980",
+              "type": "text",
+              "uuid": "fcdd0428-c654-48e2-9e61-ef4b39d01a10"
+            },
+            {
+              "key": "park_latitude",
+              "type": "text",
+              "uuid": "7eecd1c7-d4ec-4a5d-bb5b-502b0350dad3",
+              "value": "20.620526151512117"
+            },
+            {
+              "key": "park_longitude",
+              "value": "-103.38282348780142",
+              "type": "text",
+              "uuid": "2a311690-4d66-4c8e-ade3-537c67ef4feb"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://192.168.0.188:8000/api/web/v1/parks",
+          "protocol": "http",
+          "host": [
+            "192",
+            "168",
+            "0",
+            "188"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "web",
+            "v1",
+            "parks"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://192.168.0.188:8000/api/web/v1/parks",
+      "protocolProfileBehavior": {
+        "disabledSystemHeaders": {}
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Ambu-Public-Key",
+            "value": "AMBU-T-0T7iJxr6aTRZRUx0-53547551-QtNMPA",
+            "type": "text"
+          },
+          {
+            "key": "Ambu-Private-Key",
+            "value": "AMBU-r1C45SY7zY830dpgOnEK08Q8ZaHdC5iDL4rdy9eNN5TTVimC-sPTZVAnsMgqcmxXM-T",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://192.168.0.188:8000/api/web/v1/parks",
+          "protocol": "http",
+          "host": [
+            "192",
+            "168",
+            "0",
+            "188"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "web",
+            "v1",
+            "parks"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://192.168.0.188:8000/api/web/v1/parks/14",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Ambu-Public-Key",
+            "value": "AMBU-T-0T7iJxr6aTRZRUx0-53547551-QtNMPA",
+            "type": "text"
+          },
+          {
+            "key": "Ambu-Private-Key",
+            "value": "AMBU-r1C45SY7zY830dpgOnEK08Q8ZaHdC5iDL4rdy9eNN5TTVimC-sPTZVAnsMgqcmxXM-T",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://192.168.0.188:8000/api/web/v1/parks/14",
+          "protocol": "http",
+          "host": [
+            "192",
+            "168",
+            "0",
+            "188"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "web",
+            "v1",
+            "parks",
+            "14"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://192.168.0.189:8000/api/web/v1/parks/15",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Ambu-Public-Key",
+            "value": "AMBU-T-0T7iJxr6aTRZRUx0-53547551-QtNMPA",
+            "type": "text"
+          },
+          {
+            "key": "Ambu-Private-Key",
+            "value": "AMBU-r1C45SY7zY830dpgOnEK08Q8ZaHdC5iDL4rdy9eNN5TTVimC-sPTZVAnsMgqcmxXM-T",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"park_name\": \"Parque Actualizado\",\r\n  \"park_abbreviation\": \"PA\",\r\n  \"park_address\": \"Nueva direccion 456\",\r\n  \"park_city\": \"Zapopan\",\r\n  \"park_state\": \"Jalisco\",\r\n  \"park_zip_code\": \"45000\",\r\n  \"park_latitude\": 20.6735,\r\n  \"park_longitude\": -103.4002,\r\n  \"is_active\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://192.168.0.189:8000/api/web/v1/parks/12",
+          "protocol": "http",
+          "host": [
+            "192",
+            "168",
+            "0",
+            "189"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "web",
+            "v1",
+            "parks",
+            "12"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
